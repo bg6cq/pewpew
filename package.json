@@ -1,0 +1,10 @@
+{
+  "name": "ipew",
+  "version": "0.0.1",
+  "description": "attack Live Viewer",
+  "dependencies": {
+      "socket.io": "^1.4.6",
+      "express": "4.x"
+  }
+}
+
