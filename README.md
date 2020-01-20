@@ -8,8 +8,16 @@ npm install
 ```
 
 
+### 数据流
+
+```
+whoisscanme  ------(UDP 4001)----->  portscan_event.php  -----(UDP 4000)------> node js
+```
+
 ### 运行过程
 
 ```
 node app.js
 ```
+
+
