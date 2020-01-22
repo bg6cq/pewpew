@@ -74,6 +74,9 @@ echo "socket bind成功...\n";
 $redports = array (22, 110, 1433, 1521, 3306, 3389);
 $greenports = array (21, 23, 25, 53, 80, 123, 443, 1080, 8080, 8443);
 
+$colors = array("red", "green", "gray", "yellow", "blue", "pink");
+$color_index = 0;
+
 $lasttime = time();
 while (true) {
 	$r = socket_recvfrom($socket, $buf, 512, 0, $remote_ip, $remote_port);
@@ -117,6 +120,10 @@ while (true) {
 			continue;
 		$color = "gray";
 	}
+
+	$color_index = ($color_index + 1) % count($colors);
+
+	$color = $colors[$color_index];
 
 	$lasttime = time();
 	
