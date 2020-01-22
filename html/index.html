@@ -316,6 +316,10 @@ socket.on('attack', function(obj){
 	var fromcountry = "";
 	var tocountry = "";
 	var color = "green";
+	var fromlat = 0.0;
+	var fromlong = 0.0;
+	var tolat = 0.0;
+	var tolong = 0.0;
 	if (typeof obj.fromip!== 'undefined')
 		fromip = obj.fromip;
 	if (typeof obj.toip!== 'undefined')
@@ -330,28 +334,38 @@ socket.on('attack', function(obj){
 		tocountry = obj.tocountry;
 	if (typeof obj.color!== 'undefined')
 		color = obj.color;
+	if (typeof obj.fromlat!== 'undefined')
+		fromlat = obj.fromlat;
+	if (typeof obj.fromlong!== 'undefined')
+		fromlong = obj.fromlong;
+	if (typeof obj.tolat!== 'undefined')
+		tolat = obj.tolat;
+	if (typeof obj.tolong!== 'undefined')
+		tolong = obj.tolong;
 
+//console.log("from_to_lat_long: " + fromlat +"/" +fromlong +" "+tolat +"/"+tolong);
+//console.log("from_to: " + fromcountry +"/"+tocountry);
         var center_id = 0;
         for (i = 0; i < centers.length; i ++) { 
 		center_id = i;
 		if (centers[i].ISO3136 === fromcountry) {
+        		fromlat = centers[center_id].LAT;
+        		fromlong = centers[center_id].LONG;
                 	break;  
                }       
 	}       
 
-        var fromlat = centers[center_id].LAT;
-        var fromlong = centers[center_id].LONG;
         
         center_id = 0;
         for (i = 0; i < centers.length; i ++) { 
 		center_id = i;
                	if (centers[i].ISO3136 === tocountry) {
+        		tolat = centers[center_id].LAT;
+        		tolong = centers[center_id].LONG;
                 	break;  
 		}       
 	}       
 
-        var tolat = centers[center_id].LAT;
-        var tolong = centers[center_id].LONG;
 
 	if (typeof nofx === 'undefined') {
 		document.getElementById(snd_id).load();
@@ -378,17 +392,10 @@ socket.on('attack', function(obj){
 		$('#attackdiv').html("");
 		divline = 0;
 	}
-	if(color == "green")
         $('#attackdiv').append(fromcountry + " (" + fromip + ") " +
-		" <span style='color:green'>attacks</span> " +
+		" <span style='color:" + color + "'>attacks</span> " +
                 tocountry +  " (" + toip + ") " +
-                " <span style='color:steelblue'>(" + msg + ")</span> " +
-                "<br/>");
-	else 
-        $('#attackdiv').append(fromcountry + " (" + fromip + ") " +
-		" <span style='color:red'>attacks</span> " +
-                tocountry +  " (" + toip + ") " +
-                " <span style='color:steelblue'>(" + msg + ")</span> " +
+                " <span style='color:" + color + "'>(" + msg + ")</span> " +
                 "<br/>");
          $('#attackdiv').animate({scrollTop: $('#attackdiv').prop("scrollHeight")}, 10);
 });

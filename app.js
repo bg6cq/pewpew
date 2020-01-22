@@ -1,5 +1,5 @@
 var PORT = 4000;
-var HOST = '0.0.0.0';
+var HOST = '127.0.0.1';
 
 var dgram = require('dgram');
 var udpserver = dgram.createSocket('udp4');
@@ -16,8 +16,9 @@ function ab2str(buf) {
 }
 
 udpserver.on('message', function (msg, remote) {
-	console.log(remote.address + ':' + remote.port +' - ' + msg);
-	var txt = ab2str(msg);
+//	console.log(remote.address + ':' + remote.port +' - ' + msg);
+//	var txt = ab2str(msg);
+	txt = msg.toString();
        console.log(txt);
 	var obj = JSON.parse(txt);
 	io.emit('attack', obj);
