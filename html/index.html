@@ -60,7 +60,8 @@ body {
 
 #ccdiv {
   text-align:right;
-  width:100px;
+  font-size:8px;
+  width:300px;
   height:20px;
   bottom:0px;
   right:0px;
@@ -126,23 +127,26 @@ function about() {
   <audio id="timallen" src="timallen.wav" preload="auto"></audio>
 
   <center><div id="container1"></div></center>
-  <div id="titlediv">USTC端口扫描态势图</div>
+  <div id="titlediv">USTC网络威胁态势图</div>
   <div id="attackdiv"></div>
   <div id="aboutdiv"><i class="fa fa-question-circle fa-2x" onClick="about();"></i></div>
 
   <div id="ccdiv">
-  <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" /></a>
+  图中线条尽供显示参考，不代表国家边界
   </div>
 
   <div id="about">
-  <h3>About IPew</h3>
-  Attack maps are the <span style="font-family: monospace;">&lt;blink&gt;</span> tag of information security. They are pure eye candy, meant to scare the general public and <i>WOW</i> unsuspecting executives visiting Security Operations Centers. Yet, security vendors keep cranking them out. We didn't want organizations without "real" data or l33t animation skills to to feel left out, so we built this map for anyone to use [CC BY-SA]. Plus, they're all missing sound effects! And, most (all, really) use mind-numbingly dumb map projections, begging the question: <i>"Does Greenland make my map look big?"</i>.<br/>
+  <h3>关于</h3>
+  态势图用来直观展示USTC网络受到的各种威胁。<p>
+
+  软件代码在 <a target=_blank href='http://github.com/bg6cq/pewpew'>http://github.com/bg6cq/pewpew</a>。<p>
+
+  软件基于 <a target=_blank href='http://github.com/hrbrmstr/pewpew'>http://github.com/hrbrmstr/pewpew</a> 修改。<p>
+
+  <a href=http://ustcnet.ustc.edu.cn target=_blank>中国科学技术大学网络信息中心</a><p>
+james@ustc.edu.cn
+
   <br/>
-  The default map uses a statistical model (infrequently updated) for source "attack" node country of origin &amp; frequency while destinations are fully randomized. The default sound is a Star Wars "blaster" (guess which one!). Sounds can be customized and an organization name can be specified, plus there are a few other <i>interesting</i> options.<br/>
-  <br/>
-  Check out the <a target=_blank href='http://github.com/hrbrmstr/pewpew'>github repository</a> for more information and instructions on how to customize the map options for maximum effect.<br/>
-  <br/>
-  Brought to you by <a target=_blank href="http://twitter.com/alexcpsec">@alexcpsec</a>, <a target=_blank href="http://twitter.com/hrbrmstr">@hrbrmstr</a> &amp; <a target=_blank href="http://dds.ec/blog">Data-Driven Security</a>
   </div>
 
   <!-- Use Hash-Bang to maintain scroll position when closing modal -->
@@ -220,7 +224,7 @@ function about() {
       attack_max=200;
     }
 
-    if (typeof org_name !== 'undefined') { $("#titlediv").text(decodeURI(org_name) + " IPew Attack Map").html() }
+    // if (typeof org_name !== 'undefined') { $("#titlediv").text(decodeURI(org_name) + " IPew Attack Map").html() }
 
     // we maintain a fixed queue of "attacks" via this class
     function FixedQueue( size, initialValues ){
