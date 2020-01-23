@@ -28,9 +28,8 @@ app.use(function(req, res, next) {
 	if(req.headers.host!="whoisscanme.ustc.edu.cn:4000") {
                 res.statusCode = 404;
                 res.write('<p> Unknow host ' + req.headers.host);
-                console.log('host name: '+req.headers.host);
+                console.log('unknow host: '+req.headers.host);
         }
-	console.log(req.headers.host);
 	next();
 }, express.static('html'));
 
