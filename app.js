@@ -11,15 +11,10 @@ udpserver.on('listening', function () {
 
 udpserver.bind(PORT, HOST);
 
-function ab2str(buf) {
-	return String.fromCharCode.apply(null, new Uint8Array(buf));
-}
-
 udpserver.on('message', function (msg, remote) {
 //	console.log(remote.address + ':' + remote.port +' - ' + msg);
-//	var txt = ab2str(msg);
 	txt = msg.toString();
-       console.log(txt);
+//       console.log(txt);
 	var obj = JSON.parse(txt);
 	io.emit('attack', obj);
 });
@@ -29,11 +24,15 @@ var app = express(); // Create express by calling the prototype in var express
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-app.use(express.static('html'));
-
-app.get('/', function(req, res){
-	res.sendFile(__dirname + 'html' + '/index.html');
-});
+app.use(function(req, res, next) {
+	if(req.headers.host!="whoisscanme.ustc.edu.cn:4000") {
+                res.statusCode = 404;
+                res.write('<p> Unknow host ' + req.headers.host);
+                console.log('host name: '+req.headers.host);
+        }
+	console.log(req.headers.host);
+	next();
+}, express.static('html'));
 
 io.on('connection', function(socket){
 	console.log('websocket user '+socket.id+' connected');
@@ -45,4 +44,3 @@ io.on('connection', function(socket){
 http.listen(4000, function(){
 	console.log('listening on *:4000');
 });
-
