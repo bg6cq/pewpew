@@ -1,1 +1,1 @@
-while true; do php portscan_event.php; done
+while true; do php event_to_node.php; done

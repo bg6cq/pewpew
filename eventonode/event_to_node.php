@@ -53,6 +53,9 @@ function get_lat_long($ip, &$country, &$lat, &$long) {
         	$stmt->bind_param("s",$name);
         	$stmt->execute();
 		$stmt->close();
+		$lat = 0;
+		$long = 0;
+		$country = "未知";
 	}
 }
 
@@ -63,7 +66,7 @@ if($socket == FALSE) {
 	exit(0);
 }
 
-if (!socket_bind($socket, "127.0.0.1", 4001)) {
+if (!socket_bind($socket, "0.0.0.0", 4001)) {
 	$errorcode = socket_last_error();
 	$errormsg = socket_strerror($errorcode);
         echo "bind socket失败: [$errorcode] $errormsg\n";
@@ -79,63 +82,63 @@ $color_index = 0;
 
 $lasttime = time();
 while (true) {
+        $fromlat = "";
+        $fromlong = "";
+        $tolat = "";
+        $tolong = "";
 	$r = socket_recvfrom($socket, $buf, 512, 0, $remote_ip, $remote_port);
-	
 	list($event, $fromip, $fromport, $toip, $toport)  = explode(" ", $buf);
 
-	if($event!="PORTSCAN") {
-		echo "unknow message ".$event."\n";
-		continue;
-	}
-	
-	$fromip = inet_ntop(inet_pton($fromip));
-	$toip = inet_ntop(inet_pton($toip));
+        $fromip = inet_ntop(inet_pton($fromip));
+        $toip = inet_ntop(inet_pton($toip));
 	$fromport = intval($fromport);
 	$toport = intval($toport);
-	$fromlat = "";
-	$fromlong = "";
-	$tolat = "";
-	$tolong = "";
+	
+	echo "event: $event $fromip $fromport $toip $toport\n";
 
-	echo "$fromip $fromport $toip $toport\n";
+        if($event=="MAILSCAN")
+                 $msg = "mail scan";
+        else if($event=="WAF")
+                 $msg = "web attack";
+        else if($event=="PORTSCAN")
+		$msg = "port scan from $fromport to $toport";
+        else if($event=="BLOCKIP") {
+		$msg = "封锁 $fromip/$fromport";
+		if($toip == "0.0.0.0")
+			$toip = "202.38.64.1";
+	} else {
+                echo "unknow message ".$event."\n";
+                continue;
+        }
 
-	$fromcountry = @geoip_country_code_by_name($fromip);
-	if($fromcountry == "") 
-		$fromcountry = "US";
-	$tocountry = @geoip_country_code_by_name($toip);
-	if($tocountry == "") 
-		$tocountry = "US";
+        get_lat_long($fromip, $fromcountry, $fromlat, $fromlong);
+        get_lat_long($toip, $tocountry, $tolat, $tolong);
 
-	get_lat_long($fromip, $fromcountry, $fromlat, $fromlong);
-	get_lat_long($toip, $tocountry, $tolat, $tolong);
-
-	$msg = "port scan from $fromport to $toport";
-
-	if(in_array($toport, $redports)) 
-		$color = "red";
-	else if(in_array($toport, $greenports)) 
-		$color = "green";
+	if($event != "PORTSCAN")
+        	$color = "yellow";
 	else {
-		if($lasttime == time())  // 这一秒有事件，碰到不重要的跳过去不显示
-			continue;
-		$color = "gray";
+		if(in_array($toport, $redports)) 
+			$color = "red";
+		else if(in_array($toport, $greenports)) 
+			$color = "green";
+		else {
+			if($lasttime == time())  // 这一秒有事件，碰到不重要的跳过去不显示
+				continue;
+			$color = "gray";
+		}
+
+		$color_index = ($color_index + 1) % count($colors);
+
+		$color = $colors[$color_index];
+
+		$lasttime = time();
 	}
 
-	$color_index = ($color_index + 1) % count($colors);
-
-	$color = $colors[$color_index];
-
-	$lasttime = time();
-	
-	$buf = '{"fromip": "'.$fromip.'", "fromport": "'.$fromport.'", "toip": "'.$toip.'", "toport": "'.$toport.'", "fromcountry": "'.$fromcountry.'", "tocountry": "'.$tocountry.'",';
-	if($fromlat != "") 
-		$buf = $buf .  '"fromlat": '.$fromlat.',';
-	if($fromlong != "") 
-		$buf = $buf .  '"fromlong": '.$fromlong.',';
-	if($tolat != "") 
-		$buf = $buf .  '"tolat": '.$tolat.',';
-	if($tolong != "") 
-		$buf = $buf . '"tolong": '.$tolong.',';
+	$buf = '{"event": "'.$event.'", "fromip": "'.$fromip.'", "fromport": "'.$fromport.'", "toip": "'.$toip.'", "toport": "'.$toport.'", "fromcountry": "'.$fromcountry.'", "tocountry": "'.$tocountry.'",';
+	$buf = $buf .  '"fromlat": '.$fromlat.',';
+	$buf = $buf .  '"fromlong": '.$fromlong.',';
+	$buf = $buf .  '"tolat": '.$tolat.',';
+	$buf = $buf . '"tolong": '.$tolong.',';
 	$buf = $buf .  '"msg": "'.$msg.'", "color": "'.$color.'"}';
 	echo $buf."\n\n";
 	

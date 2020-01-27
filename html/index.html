@@ -22,6 +22,19 @@ body {
   overflow-y: auto;
 }
 
+#blockipdiv {
+  font-family: monospace;
+  font-size:10px;
+  position:fixed;
+  width:350px;
+  height:100px;
+  color:white;
+  background-color:black;
+  padding:5px;
+  bottom:110px;
+  overflow-y: auto;
+}
+
 #attackdiv {
   font-family: monospace;
   font-size:10px;
@@ -128,6 +141,7 @@ function about() {
 
   <center><div id="container1"></div></center>
   <div id="titlediv">USTC网络威胁态势图</div>
+  <div id="blockipdiv"></div>
   <div id="attackdiv"></div>
   <div id="aboutdiv"><i class="fa fa-question-circle fa-2x" onClick="about();"></i></div>
 
@@ -309,11 +323,14 @@ james@ustc.edu.cn
     var hits = FixedQueue( 20, [  ] );
     var boom = FixedQueue( 20, [  ] );
 
-var divline = 0;
+var blockipdivline = 0;
+var attackdivline = 0;
 var socket = io("http://whoisscanme.ustc.edu.cn:4000/");
 
 socket.on('attack', function(obj){
+	var event ="";
 	var fromip = "";
+	var fromport = "";
 	var toip = "";
 	var toport = "";
 	var msg = "";
@@ -324,8 +341,12 @@ socket.on('attack', function(obj){
 	var fromlong = 0.0;
 	var tolat = 0.0;
 	var tolong = 0.0;
+	if (typeof obj.event!== 'undefined')
+		event = obj.event;
 	if (typeof obj.fromip!== 'undefined')
 		fromip = obj.fromip;
+	if (typeof obj.fromport!== 'undefined')
+		fromport = obj.fromport;
 	if (typeof obj.toip!== 'undefined')
 		toip = obj.toip;
 	if (typeof obj.toport!== 'undefined')
@@ -349,59 +370,51 @@ socket.on('attack', function(obj){
 
 //console.log("from_to_lat_long: " + fromlat +"/" +fromlong +" "+tolat +"/"+tolong);
 //console.log("from_to: " + fromcountry +"/"+tocountry);
-        var center_id = 0;
-        for (i = 0; i < centers.length; i ++) { 
-		center_id = i;
-		if (centers[i].ISO3136 === fromcountry) {
-        		fromlat = centers[center_id].LAT;
-        		fromlong = centers[center_id].LONG;
-                	break;  
-               }       
-	}       
-
-        
-        center_id = 0;
-        for (i = 0; i < centers.length; i ++) { 
-		center_id = i;
-               	if (centers[i].ISO3136 === tocountry) {
-        		tolat = centers[center_id].LAT;
-        		tolong = centers[center_id].LONG;
-                	break;  
-		}       
-	}       
 
 
-	if (typeof nofx === 'undefined') {
-		document.getElementById(snd_id).load();
-		document.getElementById(snd_id).play();
-	}
+	if(event == "BLOCKIP") {
+		blockipdivline = blockipdivline +1;
+		if(blockipdivline> 100) {
+			$('#blockipdiv').html("");
+			blockipdivline = 0;
+		}
+        	$('#blockipdiv').append("<span style='color:" + color + "'>封锁 </span>" + fromcountry +
+			" <span style='color:" + color + "'> " + fromip + "/" + fromport + "</span> " +
+                	"<br/>");
+         	$('#blockipdiv').animate({scrollTop: $('#blockipdiv').prop("scrollHeight")}, 10);
+	} else {
+		if (typeof nofx === 'undefined') {
+			document.getElementById(snd_id).load();
+			document.getElementById(snd_id).play();
+		}
 	
-        hits.push( { origin : { latitude: +fromlat, longitude: +fromlong },
-		destination : { latitude: +tolat, longitude: +tolong } } );
-        map.arc(hits, {strokeWidth: 2, strokeColor: color});
+        	hits.push( { origin : { latitude: +fromlat, longitude: +fromlong },
+			destination : { latitude: +tolat, longitude: +tolong } } );
+        	map.arc(hits, {strokeWidth: 2, strokeColor: color});
 
-	// add boom to the bubbles queue
+		// add boom to the bubbles queue
 
-        boom.push( { radius: 7, latitude: +tolat, longitude: +tolong,
-		fillOpacity: 0.5, attk: msg} );
-        map.bubbles(boom, {
-                popupTemplate: function(geo, data) {
-			return '<div class="hoverinfo">' + msg + '</div>';
-                }
-	});
+        	boom.push( { radius: 7, latitude: +tolat, longitude: +tolong,
+			fillOpacity: 0.5, attk: msg} );
+        	map.bubbles(boom, {
+                	popupTemplate: function(geo, data) {
+				return '<div class="hoverinfo">' + msg + '</div>';
+                	}
+		});
 
-        // update the scrolling attack div
-	divline = divline +1;
-	if(divline> 100) {
-		$('#attackdiv').html("");
-		divline = 0;
+        	// update the scrolling attack div
+		attackdivline = attackdivline +1;
+		if(attackdivline> 100) {
+			$('#attackdiv').html("");
+			attackdivline = 0;
+		}
+        	$('#attackdiv').append(fromcountry + " (" + fromip + ") " +
+			" <span style='color:" + color + "'>attacks</span> " +
+                	tocountry +  " (" + toip + ") " +
+                	" <span style='color:" + color + "'>(" + msg + ")</span> " +
+                	"<br/>");
+         	$('#attackdiv').animate({scrollTop: $('#attackdiv').prop("scrollHeight")}, 10);
 	}
-        $('#attackdiv').append(fromcountry + " (" + fromip + ") " +
-		" <span style='color:" + color + "'>attacks</span> " +
-                tocountry +  " (" + toip + ") " +
-                " <span style='color:" + color + "'>(" + msg + ")</span> " +
-                "<br/>");
-         $('#attackdiv').animate({scrollTop: $('#attackdiv').prop("scrollHeight")}, 10);
 });
 
 
