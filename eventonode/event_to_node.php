@@ -87,7 +87,7 @@ while (true) {
         $tolat = "";
         $tolong = "";
 	$r = socket_recvfrom($socket, $buf, 512, 0, $remote_ip, $remote_port);
-	list($event, $fromip, $fromport, $toip, $toport)  = explode(" ", $buf);
+	@list($event, $fromip, $fromport, $toip, $toport, $msg)  = @explode(" ", $buf);
 
         $fromip = inet_ntop(inet_pton($fromip));
         $toip = inet_ntop(inet_pton($toip));
@@ -103,7 +103,6 @@ while (true) {
         else if($event=="PORTSCAN")
 		$msg = "port scan from $fromport to $toport";
         else if($event=="BLOCKIP") {
-		$msg = "封锁 $fromip/$fromport";
 		if($toip == "0.0.0.0")
 			$toip = "202.38.64.1";
 	} else {

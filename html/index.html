@@ -27,7 +27,7 @@ body {
   font-size:10px;
   position:fixed;
   width:350px;
-  height:100px;
+  height:98px;
   color:white;
   background-color:black;
   padding:5px;
@@ -40,7 +40,7 @@ body {
   font-size:10px;
   position:fixed;
   width:50%;
-  height:100px;
+  height:98px;
   color:white;
   background-color:black;
   padding:5px;
@@ -118,8 +118,15 @@ body {
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
+var sound = true;
 function about() {
   $("#about").modal();
+}
+
+function toogle_sound() {
+	console.log("sound = " + sound);
+	sound = !sound;
+	console.log("sound = " + sound);
 }
 </script>
 
@@ -143,7 +150,7 @@ function about() {
   <div id="titlediv">USTC网络威胁态势图</div>
   <div id="blockipdiv"></div>
   <div id="attackdiv"></div>
-  <div id="aboutdiv"><i class="fa fa-question-circle fa-2x" onClick="about();"></i></div>
+  <div id="aboutdiv"><i class="fa fa-volume-up fa-2x" onClick="sound= !sound;"></i> <i class="fa fa-question-circle fa-2x" onClick="about();"></i></div>
 
   <div id="ccdiv">
   图中线条轮廓仅供参考，不代表国家边界
@@ -379,11 +386,11 @@ socket.on('attack', function(obj){
 			blockipdivline = 0;
 		}
         	$('#blockipdiv').append("<span style='color:" + color + "'>封锁 </span>" + fromcountry +
-			" <span style='color:" + color + "'> " + fromip + "/" + fromport + "</span> " +
+			" <span style='color:" + color + "'> " + fromip + "/" + fromport + " " + msg + "</span> " +
                 	"<br/>");
          	$('#blockipdiv').animate({scrollTop: $('#blockipdiv').prop("scrollHeight")}, 10);
 	} else {
-		if (typeof nofx === 'undefined') {
+		if (typeof nofx === 'undefined' && sound) {
 			document.getElementById(snd_id).load();
 			document.getElementById(snd_id).play();
 		}
